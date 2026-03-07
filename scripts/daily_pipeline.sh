@@ -23,7 +23,7 @@ separator
 log "COSMOS Daily Pipeline v3 — $TIMESTAMP"
 separator
 
-cp src/index.html "${SESSION_DIR}/index.backup.html"
+cp index.html "${SESSION_DIR}/index.backup.html"
 log "✓ Backup saved"
 
 # ── Label non-owner issues ────────────────────────────────────────
@@ -122,11 +122,11 @@ EXPECTED_RESULT:
 run_agent "ARCHITECT" \
 "You are the ARCHITECT for COSMOS.
 
-Read: ${SESSION_DIR}/plan.md, src/index.html, CLAUDE.md
+Read: ${SESSION_DIR}/plan.md, src/main.js, src/planets.js, src/shaders.js, src/ui.js, src/style.css, CLAUDE.md
 
 Write ${SESSION_DIR}/implementation.md:
 
-LOCATION: <which section/lines of index.html>
+LOCATION: <which file(s) in src/ to modify>
 APPROACH: <technical approach>
 CHANGES:
 1. <specific change>
@@ -156,18 +156,18 @@ ${FIX_CONTENT}"
 
     run_agent "CODER" \
 "You are the CODER for COSMOS.
-Read: ${SESSION_DIR}/plan.md, ${SESSION_DIR}/implementation.md, CLAUDE.md, src/index.html
+Read: ${SESSION_DIR}/plan.md, ${SESSION_DIR}/implementation.md, CLAUDE.md, src/main.js, src/planets.js, src/shaders.js, src/ui.js, src/style.css
 ${FIX_CONTEXT}
 
-Implement changes in src/index.html.
-Rules: single file only, allowed CDN: Three.js cdnjs + Google Fonts, never remove planets, no object allocation inside animation loop.
+Implement changes in the appropriate file(s) in src/.
+Rules: allowed CDN: Three.js (installed via npm) + Google Fonts, never remove planets, no object allocation inside animation loop.
 
 Write ${SESSION_DIR}/coder_retry${RETRY}.md: what you changed and why." \
 "coder_retry${RETRY}.md"
 
     run_agent "TESTER" \
 "You are the TESTER for COSMOS.
-Read: ${SESSION_DIR}/plan.md, ${SESSION_DIR}/implementation.md, ${SESSION_DIR}/coder_retry${RETRY}.md, src/index.html
+Read: ${SESSION_DIR}/plan.md, ${SESSION_DIR}/implementation.md, ${SESSION_DIR}/coder_retry${RETRY}.md, src/main.js, src/planets.js, src/shaders.js, src/ui.js, src/style.css
 
 Verify: plan implemented, no JS syntax errors, valid GLSL, data structures correct, nothing broken.
 
@@ -184,8 +184,8 @@ VERDICT: <one sentence>" \
 
     run_agent "SECURITY" \
 "You are the SECURITY agent for COSMOS.
-Read src/index.html fully.
-Check: no unauthorized external URLs (only Three.js cdnjs + Google Fonts allowed), no eval/innerHTML risks, no hardcoded secrets, no external fetch calls.
+Read src/main.js, src/planets.js, src/shaders.js, src/ui.js, src/style.css fully.
+Check: no unauthorized external URLs (only Three.js via npm + Google Fonts allowed), no eval/innerHTML risks, no hardcoded secrets, no external fetch calls.
 
 Write ${SESSION_DIR}/security_retry${RETRY}.md:
 STATUS: PASS
@@ -200,7 +200,7 @@ VERDICT: <one sentence>" \
 
     run_agent "REVIEWER" \
 "You are the CODE REVIEWER for COSMOS.
-Read: ${SESSION_DIR}/coder_retry${RETRY}.md, src/index.html (changed sections)
+Read: ${SESSION_DIR}/coder_retry${RETRY}.md, src/main.js, src/planets.js, src/shaders.js, src/ui.js, src/style.css (changed sections)
 Check: no object allocation in animation loop, efficient GLSL, consistent style, no dead code, no memory leaks.
 
 Write ${SESSION_DIR}/review_retry${RETRY}.md:
