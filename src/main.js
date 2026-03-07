@@ -26,6 +26,7 @@ let camTarget = new THREE.Vector3(0, 0, 0);
 let targetCamTarget = new THREE.Vector3(0, 0, 0);
 let isDragging = false, prevMouse = { x: 0, y: 0 };
 let dragMoved = false;
+let trackedPlanet = null;
 
 // Momentum
 let dragVelocity = { theta: 0, phi: 0 };
@@ -246,6 +247,7 @@ function startFlyTo(pObj) {
 }
 
 function startFlyToOverview() {
+  trackedPlanet = null;
   const t = clock.getElapsedTime();
   flyAnim = {
     startTheta: camTheta,
@@ -274,6 +276,7 @@ function onClick(e) {
       setSelectedPlanet(pObj);
       showPanel(pObj.data);
       startFlyTo(pObj);
+      trackedPlanet = pObj;
     }
   }
 }
@@ -300,6 +303,7 @@ window.addEventListener('mousemove', (e) => {
     if (dx > 3 || dy > 3) {
       isDragging = true;
       dragMoved = true;
+      trackedPlanet = null;
       // Cancel fly animation when user drags
       if (flyAnim) flyAnim = null;
     }
@@ -321,6 +325,7 @@ canvas.addEventListener('mouseup', () => {
 // ============================================================
 function handleZoom(delta, absolute) {
   if (flyAnim) return; // suppress zoom during fly
+  trackedPlanet = null;
   if (absolute) {
     targetDist = delta;
   } else {
@@ -349,6 +354,7 @@ setupZoom(handleZoom);
 // KEYBOARD (Escape to overview)
 // ============================================================
 window.addEventListener('keydown', (e) => {
+  trackedPlanet = null;
   if (e.key === 'Escape') {
     hidePanel();
     startFlyToOverview();
@@ -428,6 +434,13 @@ function animate() {
     if (flyAnim.progress >= 1) {
       flyAnim = null;
     }
+  }
+
+  // ---- Planet tracking (after fly animation completes) ----
+  if (trackedPlanet && !flyAnim) {
+    const pp = trackedPlanet.group.position;
+    targetCamTarget.set(pp.x, pp.y, pp.z);
+    camTheta = Math.atan2(pp.x, pp.z);
   }
 
   // ---- Momentum (only when not flying) ----

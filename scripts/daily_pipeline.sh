@@ -13,21 +13,48 @@ cd "$PROJECT_DIR"
 TIMESTAMP=$(date +%Y-%m-%d_%H-%M)
 DATE=$(date +%Y-%m-%d)
 DAY_OF_WEEK=$(date +%u)  # 1=Monday, 7=Sunday
-SESSION_DIR="logs/${TIMESTAMP}"
-LOGFILE="${SESSION_DIR}/pipeline.log"
 REPO_OWNER="felixstaude"
+PIPELINE_START=$(date +%s)
+MAX_SESSION_MINUTES=90
+MAX_SESSION_BYTES=819200  # 800KB
+SESSION_BYTES=0
 
-mkdir -p "$SESSION_DIR" tmp
+# SESSION_DIR is set after we determine the work target (issue vs self-decided)
+# Temporary log until we know the session dir
+mkdir -p logs tmp
 
 log()       { echo "[$(date +%H:%M:%S)] $1" | tee -a "$LOGFILE"; }
 separator() { echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" | tee -a "$LOGFILE"; }
 
-separator
-log "COSMOS Daily Pipeline v4 — $TIMESTAMP"
-separator
+# ── Safety checks ────────────────────────────────────────────────
+check_time_limit() {
+    local NOW=$(date +%s)
+    local ELAPSED=$(( (NOW - PIPELINE_START) / 60 ))
+    if [ "$ELAPSED" -ge "$MAX_SESSION_MINUTES" ]; then
+        log "WARNING: Session time limit reached (${ELAPSED}m >= ${MAX_SESSION_MINUTES}m). Stopping."
+        return 1
+    fi
+    return 0
+}
 
-cp index.html "${SESSION_DIR}/index.backup.html"
-log "Backup saved"
+check_output_limit() {
+    SESSION_BYTES=$(du -sb "$SESSION_DIR" 2>/dev/null | cut -f1 || echo 0)
+    if [ "$SESSION_BYTES" -ge "$MAX_SESSION_BYTES" ]; then
+        log "WARNING: Session output limit reached (${SESSION_BYTES} bytes >= ${MAX_SESSION_BYTES}). Stopping."
+        return 1
+    fi
+    return 0
+}
+
+check_session_limits() {
+    check_time_limit && check_output_limit
+}
+
+# ── Determine SESSION_DIR name (deferred until we know work target) ──
+# We need to check issues first to know if this is an issue run or self-decided run.
+# Use a temporary log file until SESSION_DIR is finalized.
+TEMP_LOG="logs/pipeline_startup_${TIMESTAMP}.tmp"
+LOGFILE="$TEMP_LOG"
 
 # ── Label non-owner issues ────────────────────────────────────────
 log "Checking issues..."
@@ -65,17 +92,51 @@ for issue in sorted(issues, key=lambda x: x['number']):
         break
 " 2>/dev/null || echo "")
 
+# Check if an urgent issue number was passed via environment variable
+if [ -n "${COSMOS_ISSUE_NUM:-}" ]; then
+    ISSUE_NUM="$COSMOS_ISSUE_NUM"
+    ISSUE_TITLE=$(gh issue view "$ISSUE_NUM" --json title -q '.title' 2>/dev/null || echo "Urgent issue")
+    SELECTED="${ISSUE_NUM}|${ISSUE_TITLE}"
+    log "Urgent issue from trigger: #${ISSUE_NUM}"
+fi
+
 if [ -n "$SELECTED" ]; then
     ISSUE_NUM=$(echo "$SELECTED" | cut -d'|' -f1)
     ISSUE_TITLE=$(echo "$SELECTED" | cut -d'|' -f2-)
     BRANCH_NAME="issue-${ISSUE_NUM}-$(echo "$ISSUE_TITLE" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | cut -c1-40)"
+    SESSION_DIR="logs/issue${ISSUE_NUM}_${TIMESTAMP}"
     log "Issue #${ISSUE_NUM}: ${ISSUE_TITLE}"
     gh issue edit "$ISSUE_NUM" --add-label "in-progress" 2>/dev/null || true
     git checkout -b "$BRANCH_NAME" 2>/dev/null || git checkout "$BRANCH_NAME" 2>/dev/null
     log "Branch: $BRANCH_NAME"
 else
-    log "  No eligible issues — agent self-decides"
+    # Self-decided run — auto-increment run counter
+    COUNTER_FILE="data/run_counter.txt"
+    if [ ! -f "$COUNTER_FILE" ]; then
+        echo "0" > "$COUNTER_FILE"
+    fi
+    RUN_NUM=$(( $(cat "$COUNTER_FILE") + 1 ))
+    echo "$RUN_NUM" > "$COUNTER_FILE"
+    RUN_LABEL=$(printf "run%03d" "$RUN_NUM")
+    SESSION_DIR="logs/${RUN_LABEL}_${TIMESTAMP}"
+    log "  No eligible issues — agent self-decides (${RUN_LABEL})"
 fi
+
+# Finalize SESSION_DIR and move temp log
+mkdir -p "$SESSION_DIR"
+LOGFILE="${SESSION_DIR}/pipeline.log"
+if [ -f "$TEMP_LOG" ]; then
+    cat "$TEMP_LOG" >> "$LOGFILE"
+    rm -f "$TEMP_LOG"
+fi
+
+separator
+log "COSMOS Daily Pipeline v4 — $TIMESTAMP"
+log "Session: $SESSION_DIR"
+separator
+
+cp index.html "${SESSION_DIR}/index.backup.html"
+log "Backup saved"
 
 # ── Agent runner ──────────────────────────────────────────────────
 run_agent() {
@@ -123,6 +184,12 @@ check_status_pass() {
     grep -qi "STATUS.*PASS" "$FILE" 2>/dev/null && ! grep -qi "STATUS.*FAIL" "$FILE" 2>/dev/null
 }
 
+# ── Safety check before starting work ─────────────────────────────
+if ! check_session_limits; then
+    log "Session limits exceeded before starting — aborting"
+    exit 1
+fi
+
 # ── PLANNER ───────────────────────────────────────────────────────
 if [ -n "$ISSUE_NUM" ]; then
     WORK_CONTEXT="Work on Issue #${ISSUE_NUM}: '${ISSUE_TITLE}'. Focus entirely on this."
@@ -139,6 +206,12 @@ run_agent_to "ARCHITECT" "ARCHITECT.md" "${SESSION_DIR}/implementation.md" ""
 RETRY=0
 
 while true; do
+
+    # Safety checks before each attempt
+    if ! check_session_limits; then
+        log "Session limits exceeded — skipping further attempts"
+        break
+    fi
 
     separator
     [ $RETRY -gt 0 ] && log "Retry #${RETRY} — applying fixes only" || log "Attempt 1"
@@ -239,7 +312,7 @@ ${ISSUE_BODY}"
         log "Missing: $MISSING"
 
         # Feed back into retry loop with specific instructions
-        if [ $RETRY -lt 4 ]; then
+        if [ $RETRY -lt 4 ] && check_session_limits; then
             RETRY=$((RETRY + 1))
             cat > "${SESSION_DIR}/fix_retry${RETRY}.md" << FIXEOF
 ISSUE_RESOLVER found missing requirements. Fix these BEFORE anything else:

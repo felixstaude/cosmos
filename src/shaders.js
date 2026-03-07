@@ -17,6 +17,10 @@ import toxicFrag from './shaders/planets/toxic.frag.glsl';
 import carbonFrag from './shaders/planets/carbon.frag.glsl';
 import metallicFrag from './shaders/planets/metallic.frag.glsl';
 import crystalFrag from './shaders/planets/crystal.frag.glsl';
+import stormFrag from './shaders/planets/storm.frag.glsl';
+import cryovolcanicFrag from './shaders/planets/cryovolcanic.frag.glsl';
+import plasmaFrag from './shaders/planets/plasma.frag.glsl';
+import myceliumFrag from './shaders/planets/mycelium.frag.glsl';
 
 export const STAR_VERT = starVertSrc;
 export const STAR_FRAG = starFragSrc;
@@ -38,6 +42,10 @@ const PLANET_FRAGS = [
   carbonFrag,
   metallicFrag,
   crystalFrag,
+  stormFrag,
+  cryovolcanicFrag,
+  plasmaFrag,
+  myceliumFrag,
 ];
 
 export function getPlanetFrag(index) {
