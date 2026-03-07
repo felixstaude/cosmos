@@ -1,0 +1,35 @@
+name: Urgent Issue Trigger
+
+on:
+  issues:
+    types: [opened, labeled]
+
+jobs:
+  trigger-pipeline:
+    runs-on: ubuntu-latest
+
+    # Only run if:
+    # - Issue title starts with "IMPORTANT:" OR
+    # - Label "urgent" was just added
+    if: |
+      startsWith(github.event.issue.title, 'IMPORTANT:') ||
+      github.event.label.name == 'urgent' ||
+      contains(github.event.issue.labels.*.name, 'urgent')
+
+    steps:
+      - name: Trigger pipeline on server via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/felix/projects/cosmos
+
+            # Create a GitHub issue reference file so the pipeline picks it up first
+            echo "${{ github.event.issue.number }}" > tmp/urgent_issue.txt
+
+            # Run pipeline in background so SSH doesn't hang
+            nohup ./scripts/daily_pipeline.sh >> logs/urgent_$(date +%Y-%m-%d_%H-%M).log 2>&1 &
+
+            echo "Pipeline triggered for issue #${{ github.event.issue.number }}"
