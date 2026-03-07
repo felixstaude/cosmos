@@ -253,28 +253,6 @@ const PLANETS = [
       atmosphere: 'N\u2082, O\u2082, H\u2082O', pressure: '1.8 atm'
     },
     desc: 'A world entirely covered by a deep global ocean with no solid land. Towering wave systems driven by three moons create complex tidal patterns. Bioluminescent organisms light the twilight depths.'
-  },
-  {
-    name: 'Venomia', type: 'Toxic World', color: [0.7, 0.82, 0.15],
-    radius: 1.4, orbitRadius: 110, orbitSpeed: 0.06, rotationSpeed: 0.005,
-    tilt: 0.08, moons: 0, hasRings: false,
-    stats: {
-      mass: '0.95 M\u2295', radius: '0.98 R\u2295', temp: '735 K',
-      gravity: '0.91 g', day: '116.8 d', year: '0.62 yr',
-      atmosphere: 'CO\u2082, SO\u2082, H\u2082SO\u2084', pressure: '90 atm'
-    },
-    desc: 'A hellish Venus-analog shrouded in impenetrable layers of sulfuric acid clouds. Runaway greenhouse heating maintains surface temperatures hot enough to melt lead. Volcanic lightning crackles through the dense yellow-green atmosphere, and super-rotating winds circle the planet in just four days.'
-  },
-  {
-    name: 'Carbonis', type: 'Carbon World', color: [0.25, 0.22, 0.28],
-    radius: 1.1, orbitRadius: 116, orbitSpeed: 0.05, rotationSpeed: 0.012,
-    tilt: 0.2, moons: 1, hasRings: false,
-    stats: {
-      mass: '1.4 M\u2295', radius: '1.08 R\u2295', temp: '190 K',
-      gravity: '1.18 g', day: '32.5 h', year: '3.8 yr',
-      atmosphere: 'CH\u2084, C\u2082H\u2086, CO', pressure: '0.4 atm'
-    },
-    desc: 'An exotic world built from carbon rather than silicates. Vast plains of dark graphite stretch between mountain ranges of crystalline diamond. The thin hydrocarbon atmosphere refracts starlight into prismatic halos, and the surface glitters with sharp faceted reflections under any illumination.'
   }
 ];
 
@@ -526,73 +504,6 @@ function makePlanetFrag(index) {
       float rim=1.0-max(dot(vNormal,normalize(-vViewPos)),0.0);
       col+=vec3(0.2,0.4,0.9)*pow(rim,3.0)*0.5;
       gl_FragColor=vec4(col,1.0);
-    }`,
-    // 7 - Toxic (Venomia)
-    `uniform float uTime;uniform vec3 uColor;uniform vec3 uLightDir;
-    varying vec2 vUv;varying vec3 vNormal;varying vec3 vViewPos;
-    ${NOISE_LIB}
-    void main(){
-      float lat=vUv.y;
-      float lon=vUv.x;
-      // Dense cloud bands with super-rotation offset
-      float bands=sin(lat*35.0+uTime*0.02)*0.5+0.5;
-      float turb=fbm(vec3(lon*12.0+uTime*0.06,lat*18.0,uTime*0.03));
-      float turb2=fbm(vec3(lon*6.0-uTime*0.04,lat*10.0+2.0,uTime*0.015));
-      // Toxic color palette
-      vec3 sulfur=vec3(0.85,0.78,0.2);
-      vec3 acid=vec3(0.5,0.7,0.1);
-      vec3 ochre=vec3(0.4,0.35,0.1);
-      vec3 highlight=vec3(0.9,0.95,0.3);
-      vec3 col=mix(sulfur,acid,bands);
-      col=mix(col,ochre,turb*0.45);
-      col=mix(col,highlight,turb2*0.2);
-      col=mix(col,ochre*0.6,sin(lat*70.0+turb*5.0)*0.25+0.25);
-      // Lightning flashes
-      float lightning=smoothstep(0.82,0.85,fbm(vec3(vUv*30.0,uTime*0.8)));
-      col+=vec3(0.95,1.0,0.6)*lightning*1.5;
-      float diff=max(dot(vNormal,uLightDir),0.0)*0.4+0.6;
-      col*=diff;
-      // Thick atmospheric rim glow
-      float rim=1.0-max(dot(vNormal,normalize(-vViewPos)),0.0);
-      col+=vec3(0.7,0.75,0.1)*pow(rim,2.5)*0.7;
-      gl_FragColor=vec4(col,1.0);
-    }`,
-    // 8 - Carbon (Carbonis)
-    `uniform float uTime;uniform vec3 uColor;uniform vec3 uLightDir;
-    varying vec2 vUv;varying vec3 vNormal;varying vec3 vViewPos;
-    ${NOISE_LIB}
-    void main(){
-      vec3 p=vec3(vUv*8.0,0.7);
-      float n=fbm(p);
-      float n2=fbm(p*3.0+4.0);
-      // Dark graphite base
-      vec3 graphite=vec3(0.08,0.07,0.09);
-      vec3 darkCarbon=vec3(0.12,0.1,0.14);
-      vec3 col=mix(graphite,darkCarbon,n);
-      // Subtle purple undertone
-      col+=vec3(0.2,0.15,0.25)*n2*0.15;
-      // Diamond facets - quantized regions
-      float facetNoise=noise(p*4.0);
-      float facets=floor(facetNoise*12.0)/12.0;
-      // Per-facet glint angle based on light
-      float glintAngle=sin(facets*47.0+uTime*0.3)*0.5+0.5;
-      float lightAlign=max(dot(vNormal,uLightDir),0.0);
-      float glint=smoothstep(0.85,0.95,glintAngle*lightAlign);
-      // Sharp specular for diamond sparkle
-      vec3 viewDir=normalize(-vViewPos);
-      float spec=pow(max(dot(reflect(-uLightDir,vNormal),viewDir),0.0),64.0);
-      // Time-varying sparkle
-      float sparkle=smoothstep(0.7,0.9,sin(facetNoise*40.0+uTime*1.5)*0.5+0.5);
-      vec3 diamondColor=vec3(0.7,0.75,0.9);
-      col+=diamondColor*glint*1.2;
-      col+=diamondColor*spec*0.6;
-      col+=vec3(0.9,0.95,1.0)*sparkle*spec*0.8;
-      float diff=max(dot(vNormal,uLightDir),0.0)*0.7+0.3;
-      col*=diff;
-      // Thin hydrocarbon haze rim
-      float rim=1.0-max(dot(vNormal,viewDir),0.0);
-      col+=vec3(0.4,0.3,0.15)*pow(rim,3.0)*0.4;
-      gl_FragColor=vec4(col,1.0);
     }`
   ];
   return frags[index];
@@ -752,8 +663,7 @@ PLANETS.forEach((pData, idx) => {
   // Atmosphere
   const atmoColors = [
     [1.0, 0.3, 0.0], [0.3, 0.5, 0.9], [0.9, 0.7, 0.4],
-    [0.5, 0.75, 1.0], [0.3, 0.5, 1.0], [0.9, 0.6, 0.2], [0.2, 0.4, 0.9],
-    [0.7, 0.75, 0.1], [0.4, 0.3, 0.15]
+    [0.5, 0.75, 1.0], [0.3, 0.5, 1.0], [0.9, 0.6, 0.2], [0.2, 0.4, 0.9]
   ];
   const atmoGeo = new THREE.SphereGeometry(pData.radius * 1.15, 32, 32);
   const atmoMat = new THREE.ShaderMaterial({
@@ -917,7 +827,7 @@ const minimapCanvas = document.getElementById('minimap-canvas');
 const mctx = minimapCanvas.getContext('2d');
 
 function drawMinimap() {
-  const w = 180, h = 180, cx = w/2, cy = h/2, scale = 0.7;
+  const w = 180, h = 180, cx = w/2, cy = h/2, scale = 0.82;
   mctx.clearRect(0, 0, w, h);
 
   // Background
@@ -963,13 +873,11 @@ function drawMinimap() {
 // ANIMATION LOOP
 // ============================================================
 const clock = new THREE.Clock();
-const _toSun = new THREE.Vector3();
-const _lightDir = new THREE.Vector3();
-const _normalMat = new THREE.Matrix3();
 
 function animate() {
   requestAnimationFrame(animate);
   const t = clock.getElapsedTime();
+  const dt = clock.getDelta();
 
   // Update sun
   sunMat.uniforms.uTime.value = t;
@@ -984,9 +892,9 @@ function animate() {
     pObj.mat.uniforms.uTime.value = t;
 
     // Light direction from sun
-    _toSun.set(-x, 0, -z).normalize();
-    _lightDir.copy(_toSun).applyMatrix3(_normalMat.setFromMatrix4(camera.matrixWorldInverse)).normalize();
-    pObj.mat.uniforms.uLightDir.value.copy(_lightDir);
+    const toSun = new THREE.Vector3(-x, 0, -z).normalize();
+    const lightDir = toSun.clone().applyMatrix3(new THREE.Matrix3().setFromMatrix4(camera.matrixWorldInverse)).normalize();
+    pObj.mat.uniforms.uLightDir.value.copy(lightDir);
 
     // Rings
     pObj.group.children.forEach(child => {
