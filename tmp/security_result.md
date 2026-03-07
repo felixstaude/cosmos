@@ -1,1 +1,0 @@
-Security scan complete. **STATUS: PASS** — no issues found. The only external URL is the allowed Three.js CDN (`cdnjs.cloudflare.com/ajax/libs/three.js/r128`), and the two `innerHTML` usages on lines 872/877 are safe since they only interpolate hardcoded label strings and internal universe data.
