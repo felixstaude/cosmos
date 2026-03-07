@@ -26,10 +26,10 @@ jobs:
           script: |
             cd /home/felix/projects/cosmos
 
-            # Create a GitHub issue reference file so the pipeline picks it up first
-            echo "${{ github.event.issue.number }}" > tmp/urgent_issue.txt
+            # Pass issue number as env variable for log folder naming
+            export COSMOS_ISSUE_NUM="${{ github.event.issue.number }}"
 
             # Run pipeline in background so SSH doesn't hang
-            nohup ./scripts/daily_pipeline.sh >> logs/urgent_$(date +%Y-%m-%d_%H-%M).log 2>&1 &
+            nohup env COSMOS_ISSUE_NUM="$COSMOS_ISSUE_NUM" ./scripts/daily_pipeline.sh >> logs/urgent_$(date +%Y-%m-%d_%H-%M).log 2>&1 &
 
             echo "Pipeline triggered for issue #${{ github.event.issue.number }}"
