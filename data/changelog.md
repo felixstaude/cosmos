@@ -14,9 +14,12 @@
 - Removed Google Fonts CDN dependency, switched to system monospace fonts
 - Pre-allocated reusable Three.js objects in animation loop to reduce GC pressure
 
-## 2026-03-07 — 2026-03-07_13-20
-**Task:** 
-**Result:** 
-**Retries:** 1
-**Issue:** none
-**Logs:** logs/2026-03-07_13-20
+## 2026-03-07 - Migrate to Vite + Modular Architecture
+- Migrated from single-file `src/index.html` to Vite-powered modular project
+- Split into separate JS modules: `src/main.js`, `src/planets.js`, `src/shaders.js`, `src/ui.js`
+- Extracted all CSS to `src/style.css`
+- Put each planet shader in its own `.glsl` file under `src/shaders/planets/`
+- Shared noise functions in `src/shaders/noise.glsl` with `#include` via vite-plugin-glsl
+- Three.js now installed via npm instead of CDN
+- Added GitHub Actions workflow for automatic deployment to GitHub Pages on push to main
+- Updated CLAUDE.md to reflect new project structure and workflows

@@ -1,0 +1,110 @@
+export const PLANETS = [
+  {
+    name: 'Ignis', type: 'Lava World', color: [1.0, 0.3, 0.05],
+    radius: 1.2, orbitRadius: 12, orbitSpeed: 0.8, rotationSpeed: 0.01,
+    tilt: 0.05, moons: 0, hasRings: false,
+    atmoColor: [1.0, 0.3, 0.0],
+    stats: {
+      mass: '0.8 M\u2295', radius: '0.9 R\u2295', temp: '1,420 K',
+      gravity: '0.95 g', day: '58.2 d', year: '0.24 yr',
+      atmosphere: 'SO\u2082, CO\u2082', pressure: '92 atm'
+    },
+    desc: 'A scorched world locked in a slow rotation. Rivers of molten silicate carve luminous veins across its darkened crust. Tidal forces from the parent star keep the interior in a state of perpetual convection.'
+  },
+  {
+    name: 'Terra Nova', type: 'Terrestrial', color: [0.2, 0.6, 0.3],
+    radius: 1.5, orbitRadius: 22, orbitSpeed: 0.5, rotationSpeed: 0.02,
+    tilt: 0.41, moons: 1, hasRings: false,
+    atmoColor: [0.3, 0.5, 0.9],
+    stats: {
+      mass: '1.1 M\u2295', radius: '1.05 R\u2295', temp: '288 K',
+      gravity: '1.02 g', day: '23.8 h', year: '1.02 yr',
+      atmosphere: 'N\u2082, O\u2082', pressure: '1.01 atm'
+    },
+    desc: 'A vibrant terrestrial world with vast emerald continents and deep blue oceans. A thick nitrogen-oxygen atmosphere supports complex weather systems and a thriving biosphere.'
+  },
+  {
+    name: 'Jupiterus', type: 'Gas Giant', color: [0.85, 0.65, 0.4],
+    radius: 3.5, orbitRadius: 38, orbitSpeed: 0.25, rotationSpeed: 0.04,
+    tilt: 0.05, moons: 4, hasRings: true, ringColor: [0.85, 0.75, 0.55],
+    atmoColor: [0.9, 0.7, 0.4],
+    stats: {
+      mass: '318 M\u2295', radius: '11.2 R\u2295', temp: '165 K',
+      gravity: '2.53 g', day: '9.9 h', year: '11.86 yr',
+      atmosphere: 'H\u2082, He', pressure: '>1000 atm'
+    },
+    desc: 'A massive gas giant with dramatic banded cloud patterns driven by 600 km/h winds. Its Great Storm \u2014 a colossal anticyclone \u2014 has persisted for centuries in the southern hemisphere.'
+  },
+  {
+    name: 'Glacius', type: 'Ice World', color: [0.6, 0.85, 0.95],
+    radius: 1.0, orbitRadius: 52, orbitSpeed: 0.18, rotationSpeed: 0.015,
+    tilt: 0.45, moons: 0, hasRings: false,
+    atmoColor: [0.5, 0.75, 1.0],
+    stats: {
+      mass: '0.5 M\u2295', radius: '0.75 R\u2295', temp: '72 K',
+      gravity: '0.6 g', day: '16.1 h', year: '29.5 yr',
+      atmosphere: 'N\u2082, CH\u2084', pressure: '1.5 atm'
+    },
+    desc: 'A frozen world encased in kilometres of crystalline ice. Beneath the surface, a subsurface ocean warmed by tidal heating may harbour primitive life in hydrothermal vent systems.'
+  },
+  {
+    name: 'Nereid', type: 'Ice Giant', color: [0.3, 0.5, 0.9],
+    radius: 2.5, orbitRadius: 66, orbitSpeed: 0.12, rotationSpeed: 0.03,
+    tilt: 0.55, moons: 2, hasRings: true, ringColor: [0.4, 0.55, 0.85],
+    atmoColor: [0.3, 0.5, 1.0],
+    stats: {
+      mass: '14.5 M\u2295', radius: '3.98 R\u2295', temp: '76 K',
+      gravity: '0.89 g', day: '17.2 h', year: '84 yr',
+      atmosphere: 'H\u2082, He, CH\u2084', pressure: '>200 atm'
+    },
+    desc: 'A majestic ice giant with vivid azure bands of methane clouds. Extreme axial tilt creates dramatic seasonal shifts, and a faint ring system of dark icy particles encircles the equator.'
+  },
+  {
+    name: 'Arrakis', type: 'Desert World', color: [0.9, 0.7, 0.35],
+    radius: 1.3, orbitRadius: 80, orbitSpeed: 0.09, rotationSpeed: 0.018,
+    tilt: 0.1, moons: 2, hasRings: false,
+    atmoColor: [0.9, 0.6, 0.2],
+    stats: {
+      mass: '0.9 M\u2295', radius: '0.95 R\u2295', temp: '310 K',
+      gravity: '0.88 g', day: '24.6 h', year: '1.88 yr',
+      atmosphere: 'CO\u2082, N\u2082', pressure: '0.006 atm'
+    },
+    desc: 'A vast desert planet swept by titanic dust storms that can engulf the entire globe. Ancient riverbeds hint at a watery past, and polar caps of frozen CO\u2082 expand and retreat with the seasons.'
+  },
+  {
+    name: 'Oceanus', type: 'Ocean World', color: [0.1, 0.35, 0.8],
+    radius: 1.8, orbitRadius: 96, orbitSpeed: 0.07, rotationSpeed: 0.025,
+    tilt: 0.3, moons: 1, hasRings: false,
+    atmoColor: [0.2, 0.4, 0.9],
+    stats: {
+      mass: '1.3 M\u2295', radius: '1.15 R\u2295', temp: '280 K',
+      gravity: '1.08 g', day: '20.4 h', year: '2.5 yr',
+      atmosphere: 'N\u2082, O\u2082, H\u2082O', pressure: '1.8 atm'
+    },
+    desc: 'A world entirely covered by a deep global ocean with no solid land. Towering wave systems driven by three moons create complex tidal patterns. Bioluminescent organisms light the twilight depths.'
+  },
+  {
+    name: 'Venomia', type: 'Toxic World', color: [0.7, 0.82, 0.15],
+    radius: 1.4, orbitRadius: 110, orbitSpeed: 0.06, rotationSpeed: 0.005,
+    tilt: 0.08, moons: 0, hasRings: false,
+    atmoColor: [0.7, 0.75, 0.1],
+    stats: {
+      mass: '0.95 M\u2295', radius: '0.98 R\u2295', temp: '735 K',
+      gravity: '0.91 g', day: '116.8 d', year: '0.62 yr',
+      atmosphere: 'CO\u2082, SO\u2082, H\u2082SO\u2084', pressure: '90 atm'
+    },
+    desc: 'A hellish Venus-analog shrouded in impenetrable layers of sulfuric acid clouds. Runaway greenhouse heating maintains surface temperatures hot enough to melt lead. Volcanic lightning crackles through the dense yellow-green atmosphere, and super-rotating winds circle the planet in just four days.'
+  },
+  {
+    name: 'Carbonis', type: 'Carbon World', color: [0.25, 0.22, 0.28],
+    radius: 1.1, orbitRadius: 116, orbitSpeed: 0.05, rotationSpeed: 0.012,
+    tilt: 0.2, moons: 1, hasRings: false,
+    atmoColor: [0.4, 0.3, 0.15],
+    stats: {
+      mass: '1.4 M\u2295', radius: '1.08 R\u2295', temp: '190 K',
+      gravity: '1.18 g', day: '32.5 h', year: '3.8 yr',
+      atmosphere: 'CH\u2084, C\u2082H\u2086, CO', pressure: '0.4 atm'
+    },
+    desc: 'An exotic world built from carbon rather than silicates. Vast plains of dark graphite stretch between mountain ranges of crystalline diamond. The thin hydrocarbon atmosphere refracts starlight into prismatic halos, and the surface glitters with sharp faceted reflections under any illumination.'
+  }
+];

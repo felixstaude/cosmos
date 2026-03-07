@@ -1,2 +1,4 @@
 tmp/
 logs/
+node_modules/
+dist/

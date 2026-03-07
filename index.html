@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cosmos — 3D Solar System Explorer</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<div id="ui-overlay">
+  <div id="title-bar">Cosmos Explorer</div>
+  <div id="tooltip"></div>
+  <div id="detail-panel">
+    <button id="close-panel">&times;</button>
+    <h2 id="panel-name"></h2>
+    <div class="type-label" id="panel-type"></div>
+    <div class="stat-grid" id="panel-stats"></div>
+    <div class="desc" id="panel-desc"></div>
+  </div>
+  <div id="minimap"><canvas id="minimap-canvas" width="180" height="180"></canvas></div>
+  <div id="zoom-bar">
+    <button id="zoom-in">+</button>
+    <input type="range" id="zoom-slider" min="30" max="250" value="120" orient="vertical">
+    <button id="zoom-out">&minus;</button>
+  </div>
+  <div id="controls-hint">DRAG TO ORBIT &middot; SCROLL TO ZOOM &middot; CLICK PLANET FOR INFO</div>
+</div>
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>
