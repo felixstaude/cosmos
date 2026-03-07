@@ -15,6 +15,8 @@ import desertFrag from './shaders/planets/desert.frag.glsl';
 import oceanFrag from './shaders/planets/ocean.frag.glsl';
 import toxicFrag from './shaders/planets/toxic.frag.glsl';
 import carbonFrag from './shaders/planets/carbon.frag.glsl';
+import metallicFrag from './shaders/planets/metallic.frag.glsl';
+import crystalFrag from './shaders/planets/crystal.frag.glsl';
 
 export const STAR_VERT = starVertSrc;
 export const STAR_FRAG = starFragSrc;
@@ -34,6 +36,8 @@ const PLANET_FRAGS = [
   oceanFrag,
   toxicFrag,
   carbonFrag,
+  metallicFrag,
+  crystalFrag,
 ];
 
 export function getPlanetFrag(index) {

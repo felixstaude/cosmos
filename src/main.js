@@ -18,10 +18,25 @@ const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 2000);
 camera.position.set(0, 60, 120);
 
-// Camera orbit controls (manual)
+// ============================================================
+// CAMERA STATE
+// ============================================================
 let camTheta = 0, camPhi = 0.6, camDist = 120, targetDist = 120;
 let camTarget = new THREE.Vector3(0, 0, 0);
+let targetCamTarget = new THREE.Vector3(0, 0, 0);
 let isDragging = false, prevMouse = { x: 0, y: 0 };
+let dragMoved = false;
+
+// Momentum
+let dragVelocity = { theta: 0, phi: 0 };
+const FRICTION = 0.95;
+const VELOCITY_EPSILON = 0.00001;
+
+// Fly animation
+let flyAnim = null;
+
+// Easing
+const easeInOutCubic = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
 // ============================================================
 // STARFIELD
@@ -170,6 +185,9 @@ const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 let hoveredPlanet = null;
 
+// Pre-allocated vectors for raycasting (no alloc in handlers)
+const _rayTarget = new THREE.Vector3();
+
 function onMouseMove(e) {
   mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
   mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
@@ -179,6 +197,11 @@ function onMouseMove(e) {
     const dy = e.clientY - prevMouse.y;
     camTheta -= dx * 0.005;
     camPhi = Math.max(0.1, Math.min(Math.PI - 0.1, camPhi - dy * 0.005));
+
+    // Track drag velocity for momentum
+    dragVelocity.theta = -dx * 0.005;
+    dragVelocity.phi = -dy * 0.005;
+
     prevMouse.x = e.clientX;
     prevMouse.y = e.clientY;
     return;
@@ -201,8 +224,47 @@ function onMouseMove(e) {
   }
 }
 
+function startFlyTo(pObj) {
+  const t = clock.getElapsedTime();
+  flyAnim = {
+    startTheta: camTheta,
+    startPhi: camPhi,
+    startDist: camDist,
+    startTarget: camTarget.clone(),
+    targetDist: pObj.data.radius * 5,
+    targetPhi: 0.7,
+    targetTheta: null, // computed each frame from planet position
+    planetObj: pObj,
+    startTime: t,
+    duration: 1.5,
+    progress: 0
+  };
+  // Compute initial target theta from planet position
+  const px = pObj.group.position.x;
+  const pz = pObj.group.position.z;
+  flyAnim.targetTheta = Math.atan2(px, pz);
+}
+
+function startFlyToOverview() {
+  const t = clock.getElapsedTime();
+  flyAnim = {
+    startTheta: camTheta,
+    startPhi: camPhi,
+    startDist: camDist,
+    startTarget: camTarget.clone(),
+    targetDist: 120,
+    targetPhi: 0.6,
+    targetTheta: camTheta, // keep current angle
+    planetObj: null,
+    startTime: t,
+    duration: 1.5,
+    progress: 0
+  };
+  targetCamTarget.set(0, 0, 0);
+}
+
 function onClick(e) {
-  if (isDragging) return;
+  if (dragMoved) return;
   raycaster.setFromCamera(mouse, camera);
   const intersects = raycaster.intersectObjects(clickTargets);
   if (intersects.length > 0) {
@@ -211,34 +273,87 @@ function onClick(e) {
     if (pObj) {
       setSelectedPlanet(pObj);
       showPanel(pObj.data);
+      startFlyTo(pObj);
     }
   }
 }
 
 canvas.addEventListener('mousemove', onMouseMove);
 canvas.addEventListener('click', onClick);
+
 canvas.addEventListener('mousedown', (e) => {
-  if (e.button === 0) { isDragging = false; prevMouse.x = e.clientX; prevMouse.y = e.clientY; }
+  if (e.button === 0) {
+    isDragging = false;
+    dragMoved = false;
+    prevMouse.x = e.clientX;
+    prevMouse.y = e.clientY;
+    // Cancel fly animation on drag start
+    dragVelocity.theta = 0;
+    dragVelocity.phi = 0;
+  }
 });
+
 window.addEventListener('mousemove', (e) => {
   if (e.buttons === 1) {
     const dx = Math.abs(e.clientX - prevMouse.x);
     const dy = Math.abs(e.clientY - prevMouse.y);
-    if (dx > 3 || dy > 3) isDragging = true;
+    if (dx > 3 || dy > 3) {
+      isDragging = true;
+      dragMoved = true;
+      // Cancel fly animation when user drags
+      if (flyAnim) flyAnim = null;
+    }
   }
 });
-canvas.addEventListener('mouseup', () => { setTimeout(() => isDragging = false, 10); });
 
-// Zoom
+canvas.addEventListener('mouseup', () => {
+  if (isDragging) {
+    // Momentum continues from dragVelocity (already set in onMouseMove)
+  } else {
+    dragVelocity.theta = 0;
+    dragVelocity.phi = 0;
+  }
+  setTimeout(() => isDragging = false, 10);
+});
+
+// ============================================================
+// ZOOM (with cursor-focused shift)
+// ============================================================
 function handleZoom(delta, absolute) {
+  if (flyAnim) return; // suppress zoom during fly
   if (absolute) {
     targetDist = delta;
   } else {
     targetDist = Math.max(30, Math.min(250, targetDist + delta));
+
+    // Cursor-focused zoom: shift target toward mouse ray on zoom-in
+    if (delta < 0) {
+      raycaster.setFromCamera(mouse, camera);
+      // Project a point along the ray at the current camDist
+      _rayTarget.copy(raycaster.ray.direction).multiplyScalar(camDist).add(raycaster.ray.origin);
+      // Lerp targetCamTarget toward that point by a small factor
+      targetCamTarget.lerp(_rayTarget, 0.06);
+    }
+
+    // Zoom-out past threshold: return to overview
+    if (targetDist > 220) {
+      targetCamTarget.set(0, 0, 0);
+      hidePanel();
+    }
   }
   updateZoomSlider(targetDist);
 }
 setupZoom(handleZoom);
+
+// ============================================================
+// KEYBOARD (Escape to overview)
+// ============================================================
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    hidePanel();
+    startFlyToOverview();
+  }
+});
 
 // ============================================================
 // ANIMATION LOOP
@@ -286,6 +401,49 @@ function animate() {
       }
     });
   });
+
+  // ---- Fly animation ----
+  if (flyAnim) {
+    const elapsed = t - flyAnim.startTime;
+    flyAnim.progress = Math.min(1, elapsed / flyAnim.duration);
+    const e = easeInOutCubic(flyAnim.progress);
+
+    // If tracking a planet, update target to its current world position each frame
+    if (flyAnim.planetObj) {
+      const pp = flyAnim.planetObj.group.position;
+      targetCamTarget.set(pp.x, pp.y, pp.z);
+      // Update target theta to follow orbiting planet
+      flyAnim.targetTheta = Math.atan2(pp.x, pp.z);
+    }
+
+    // Interpolate camera parameters (shortest-arc theta)
+    let dTheta = flyAnim.targetTheta - flyAnim.startTheta;
+    while (dTheta > Math.PI) dTheta -= Math.PI * 2;
+    while (dTheta < -Math.PI) dTheta += Math.PI * 2;
+    camTheta = flyAnim.startTheta + dTheta * e;
+    camPhi = flyAnim.startPhi + (flyAnim.targetPhi - flyAnim.startPhi) * e;
+    targetDist = flyAnim.startDist + (flyAnim.targetDist - flyAnim.startDist) * e;
+    updateZoomSlider(targetDist);
+
+    if (flyAnim.progress >= 1) {
+      flyAnim = null;
+    }
+  }
+
+  // ---- Momentum (only when not flying) ----
+  if (!flyAnim && !isDragging) {
+    if (Math.abs(dragVelocity.theta) > VELOCITY_EPSILON || Math.abs(dragVelocity.phi) > VELOCITY_EPSILON) {
+      camTheta += dragVelocity.theta;
+      camPhi = Math.max(0.1, Math.min(Math.PI - 0.1, camPhi + dragVelocity.phi));
+      dragVelocity.theta *= FRICTION;
+      dragVelocity.phi *= FRICTION;
+      if (Math.abs(dragVelocity.theta) < VELOCITY_EPSILON) dragVelocity.theta = 0;
+      if (Math.abs(dragVelocity.phi) < VELOCITY_EPSILON) dragVelocity.phi = 0;
+    }
+  }
+
+  // ---- Smooth camTarget lerp ----
+  camTarget.lerp(targetCamTarget, 0.06);
 
   // Camera smoothing
   camDist += (targetDist - camDist) * 0.08;
