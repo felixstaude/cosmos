@@ -361,6 +361,54 @@
         "pressure": "1.6 atm"
       },
       "desc": "A planet-spanning fungal neural network exhibits collective intelligence signals detected as coherent electromagnetic pulses. Bioluminescent fruiting bodies visible from orbit pulse in synchronized waves across entire hemispheres. Spore clouds periodically form temporary rings that orbit for weeks before dissipating. The mycelial network reaches kilometres deep, and seismic data suggests the entire crust is more organism than geology."
+    },
+    {
+      "name": "Aethon Theion",
+      "type": "Sulfur World",
+      "color": [0.9, 0.78, 0.15],
+      "radius": 1.3,
+      "orbitRadius": 222,
+      "orbitSpeed": 0.012,
+      "rotationSpeed": 0.016,
+      "tilt": 0.25,
+      "moons": 0,
+      "hasRings": false,
+      "atmoColor": [0.85, 0.75, 0.1],
+      "stats": {
+        "mass": "0.72 M⊕",
+        "radius": "0.88 R⊕",
+        "temp": "420 K",
+        "gravity": "0.82 g",
+        "day": "20.5 h",
+        "year": "30.6 yr",
+        "atmosphere": "SO₂, S₂, volcanic particulates",
+        "pressure": "0.002 atm"
+      },
+      "desc": "A supervolcanic sulfur world reminiscent of Io at planetary scale. Brilliant yellow-orange sulfur lava lakes churn across the surface, fed by relentless tidal heating. Towering SO₂ plumes erupt hundreds of kilometres into the thin atmosphere, depositing vivid sulfurous frost in concentric rings around each caldera. The entire surface reshapes itself on timescales of months."
+    },
+    {
+      "name": "Aethon Skotadi",
+      "type": "Void World",
+      "color": [0.06, 0.04, 0.06],
+      "radius": 2.2,
+      "orbitRadius": 240,
+      "orbitSpeed": 0.01,
+      "rotationSpeed": 0.022,
+      "tilt": 0.08,
+      "moons": 1,
+      "hasRings": false,
+      "atmoColor": [0.15, 0.03, 0.03],
+      "stats": {
+        "mass": "8.5 M⊕",
+        "radius": "2.8 R⊕",
+        "temp": "1,850 K",
+        "gravity": "1.35 g",
+        "day": "12.4 h",
+        "year": "36.2 yr",
+        "atmosphere": "TiO, VO, Na",
+        "pressure": ">80 atm"
+      },
+      "desc": "An ultra-dark hot sub-giant that absorbs over 99% of incident light, making it darker than coal. TiO and VO molecules in the searing atmosphere trap nearly all photons, rendering the planet a hauntingly dark silhouette against the starfield. Only faint crimson thermal emission cracks and an eerie red limb glow betray its 1,850 K surface temperature — a world defined by the near-total absence of reflected light."
     }
   ]
 }

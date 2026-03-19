@@ -21,6 +21,8 @@ import stormFrag from './shaders/planets/storm.frag.glsl';
 import cryovolcanicFrag from './shaders/planets/cryovolcanic.frag.glsl';
 import plasmaFrag from './shaders/planets/plasma.frag.glsl';
 import myceliumFrag from './shaders/planets/mycelium.frag.glsl';
+import sulfurFrag from './shaders/planets/sulfur.frag.glsl';
+import voidFrag from './shaders/planets/void.frag.glsl';
 
 export const STAR_VERT = starVertSrc;
 export const STAR_FRAG = starFragSrc;
@@ -46,6 +48,8 @@ const PLANET_FRAGS = [
   cryovolcanicFrag,
   plasmaFrag,
   myceliumFrag,
+  sulfurFrag,
+  voidFrag,
 ];
 
 export function getPlanetFrag(index) {
