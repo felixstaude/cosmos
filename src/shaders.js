@@ -23,6 +23,8 @@ import plasmaFrag from './shaders/planets/plasma.frag.glsl';
 import myceliumFrag from './shaders/planets/mycelium.frag.glsl';
 import sulfurFrag from './shaders/planets/sulfur.frag.glsl';
 import voidFrag from './shaders/planets/void.frag.glsl';
+import eyeballFrag from './shaders/planets/eyeball.frag.glsl';
+import electromagneticFrag from './shaders/planets/electromagnetic.frag.glsl';
 
 export const STAR_VERT = starVertSrc;
 export const STAR_FRAG = starFragSrc;
@@ -50,6 +52,8 @@ const PLANET_FRAGS = [
   myceliumFrag,
   sulfurFrag,
   voidFrag,
+  eyeballFrag,
+  electromagneticFrag,
 ];
 
 export function getPlanetFrag(index) {

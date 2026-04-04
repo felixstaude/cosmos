@@ -409,6 +409,54 @@
         "pressure": ">80 atm"
       },
       "desc": "An ultra-dark hot sub-giant that absorbs over 99% of incident light, making it darker than coal. TiO and VO molecules in the searing atmosphere trap nearly all photons, rendering the planet a hauntingly dark silhouette against the starfield. Only faint crimson thermal emission cracks and an eerie red limb glow betray its 1,850 K surface temperature — a world defined by the near-total absence of reflected light."
+    },
+    {
+      "name": "Aethon Ophthalmos",
+      "type": "Eyeball World",
+      "color": [0.85, 0.35, 0.15],
+      "radius": 1.5,
+      "orbitRadius": 258,
+      "orbitSpeed": 0.009,
+      "rotationSpeed": 0.003,
+      "tilt": 0.05,
+      "moons": 0,
+      "hasRings": false,
+      "atmoColor": [0.7, 0.3, 0.2],
+      "stats": {
+        "mass": "1.1 M⊕",
+        "radius": "1.05 R⊕",
+        "temp": "310 K (substellar) / 45 K (nightside)",
+        "gravity": "1.02 g",
+        "day": "Tidally locked",
+        "year": "42.5 yr",
+        "atmosphere": "N₂, H₂O, CO₂",
+        "pressure": "1.8 atm"
+      },
+      "desc": "Permanently locked to Aethon with one face eternally sunward. The substellar point is a perpetual cyclone of evaporating ocean — a vast liquid eye rimmed by towering cumulonimbus walls. The terminator ring hosts the only habitable zone: a twilight band of perpetual cloud cover where liquid water persists. The nightside is a frozen wasteland of nitrogen ice and CO₂ glaciers, cracked by tidal stresses into geometric fracture patterns visible from orbit."
+    },
+    {
+      "name": "Aethon Astrapios",
+      "type": "Electromagnetic World",
+      "color": [0.15, 0.2, 0.45],
+      "radius": 2.4,
+      "orbitRadius": 275,
+      "orbitSpeed": 0.008,
+      "rotationSpeed": 0.028,
+      "tilt": 0.9,
+      "moons": 2,
+      "hasRings": false,
+      "atmoColor": [0.2, 0.3, 0.7],
+      "stats": {
+        "mass": "8.2 M⊕",
+        "radius": "2.4 R⊕",
+        "temp": "195 K",
+        "gravity": "1.42 g",
+        "day": "9.8 h",
+        "year": "48.2 yr",
+        "atmosphere": "H₂, He, NH₃, ionized plasma",
+        "pressure": ">120 atm"
+      },
+      "desc": "A super-Earth with the most powerful magnetic field in the Aethon system — 14,000 times stronger than terrestrial worlds. Perpetual planetary-scale lightning networks discharge across the atmosphere in branching filaments thousands of kilometres long. Ionized channels glow electric blue, persisting for hours as plasma slowly recombines. Magnetospheric auroras engulf both hemispheres simultaneously, painting the upper atmosphere in sheets of emerald and violet. Radio emissions from discharge events are detectable across the entire system."
     }
   ]
 }
